@@ -30,11 +30,11 @@
   register: schema_loaded
 
 - name: Load schema from variable
-  command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f {{ ols_ldif | quote }}
-  when: ols_schema is not defined and not schema_loaded.stdout
-
-- name: Load schema from file
   command: ldapadd -Q -Y EXTERNAL -H ldapi:///
   args:
     stdin: "{{ ols_schema }}"
   when: ols_schema is defined and not schema_loaded.stdout
+
+- name: Load schema from file
+  command: ldapadd -Q -Y EXTERNAL -H ldapi:/// -f {{ ols_ldif | quote }}
+  when: ols_schema is not defined and not schema_loaded.stdout
