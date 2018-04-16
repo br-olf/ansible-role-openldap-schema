@@ -1,21 +1,32 @@
 ---
-- name: Set schema DN from variable
+- name: Set schema CN from variable
   set_fact:
-    schema_name: "{{ ols_schema | replace('\n ', '') | regex_search('(?<=^dn:\\s)[^\\n]+') }}"
-  failed_when: schema_name == ''
+    schema_cn: "{{ ols_schema | replace('\n ', '') | regex_search('(?<=\\ncn:\\s)[^\\n]+') }}"
+  failed_when: schema_cn == ''
   when: ols_schema is defined
 
 - name: Read schema DN from file
-  shell: >
+  shell: >-
     sed -ne '/^ /! { x; s/\n //g; 1!p; }; /^ /H; $ {g; s/\n //g; p; }' {{ ols_ldif | quote }} |
-    sed -ne '/^dn:/ { s/^dn: \+//; p; }'
-  warn: false
-  register: dn
+    sed -ne '/^cn:/ { s/^cn: \+//; p; q; }'
+  args:
+    warn: false
+  register: cn
   changed_when: false
   when: ols_schema is not defined
 
-- name: Set schema DN from file
+- name: Set schema CN from file
   set_fact:
-    schema_name: "{{ dn.stdout }}"
-  failed_when: schema_name == ''
+    schema_cn: "{{ cn.stdout }}"
+  failed_when: schema_cn == ''
   when: ols_schema is not defined
+
+- name: Check if schema is loaded
+  command: >-
+    ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config -s one
+    {{ ('(cn={*}' ~ schema_cn ~ ')') | quote }}
+    dn
+  args:
+    warn: false
+  changed_when: false
+  register: schema_loaded
