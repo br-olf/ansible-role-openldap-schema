@@ -1,2 +1,21 @@
 ---
-# tasks file for devgateway.openldap-schema
+- name: Set schema DN from variable
+  set_fact:
+    schema_name: "{{ ols_schema | replace('\n ', '') | regex_search('(?<=^dn:\\s)[^\\n]+') }}"
+  failed_when: schema_name == ''
+  when: ols_schema is defined
+
+- name: Read schema DN from file
+  shell: >
+    sed -ne '/^ /! { x; s/\n //g; 1!p; }; /^ /H; $ {g; s/\n //g; p; }' {{ ols_ldif | quote }} |
+    sed -ne '/^dn:/ { s/^dn: \+//; p; }'
+  warn: false
+  register: dn
+  changed_when: false
+  when: ols_schema is not defined
+
+- name: Set schema DN from file
+  set_fact:
+    schema_name: "{{ dn.stdout }}"
+  failed_when: schema_name == ''
+  when: ols_schema is not defined
