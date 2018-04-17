@@ -25,10 +25,30 @@ will be loaded to LDAP using `ldapadd(1)` command.
 
 ## Example Playbook
 
+    ---
+    - hosts: ldap-servers
+      tasks:
+        - name: Start OpenLDAP
+          service:
+            name: slapd
+            state: started
+
+        - name: Load schema from remote file
+          include_role:
+            name: devgateway.openldap-schema
+          vars:
+            ols_ldif: /etc/openldap/schema/ppolicy.ldif
+
+        - name: Load schema from a lookup
+          include_role:
+            name: devgateway.openldap-schema
+          vars:
+            ols_schema: "{{ lookup('file', '~/schema/project.ldif' }}"
+
 # License
 
 GPLv3 or later
 
 # Author Information
 
-2018, Development Gateway
+Copyright 2018, Development Gateway
