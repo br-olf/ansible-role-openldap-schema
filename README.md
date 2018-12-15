@@ -43,7 +43,7 @@ will be loaded to LDAP using `ldapadd(1)` command.
           include_role:
             name: devgateway.openldap-schema
           vars:
-            ols_schema: "{{ lookup('file', '~/schema/project.ldif' }}"
+            ols_schema: "{{ lookup('file', '~/schema/project.ldif' ) }}"
 
 # License
 
