@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: openldap-schema
-  author: Styopa Semenukha
-  description: your description
+  author: "Development Gateway"
+  description: "Idempotently load a schema to OpenLDAP server."
 
   # If the issue tracker for your role is not on github, uncomment the
   # next line and provide a value
